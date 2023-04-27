@@ -8,14 +8,7 @@ env:
 jobs:
   release:
     name: Release
-    strategy:
-      matrix:
-        kind: ['windows']
-        include:
-          - kind: windows
-            os: windows-latest
-            target: win-x64
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -29,18 +22,14 @@ jobs:
         shell: bash
         run: |
           tag=$(git describe --tags --abbrev=0)
-          release_name="MedabotsRandomizer-$tag-${{ matrix.target }}"
+          release_name="MedabotsRandomizer-$tag-win-x64"
 
           # Build everything
-          dotnet publish --framework net6.0 --runtime "${{ matrix.target }}" -c Release -o "$release_name"
+          dotnet publish --framework net6.0 --runtime "win-x64" -c Release -o "$release_name"
 
           # Pack files
-          if [ "${{ matrix.target }}" == "win-x64" ]; then
-            # Pack to zip for Windows
-            7z a -tzip "${release_name}.zip" "./${release_name}/*"
-          else
-          tar czvf "${release_name}.tar.gz" "$release_name"
-          fi
+          # Pack to zip for Windows
+          7z a -tzip "${release_name}.zip" "./${release_name}/*"
 
           # Delete output directory
           rm -r "$release_name"
